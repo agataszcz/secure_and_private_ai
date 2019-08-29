@@ -1,15 +1,16 @@
-# Federated Learning (FL) with Secure Multiparty Computation (SMPC)
+# Federated Learning with Additive Sharing
 
 ## Use case: detect spam in messages while keeping them private
+Every day we receive plenty of messages, and many of them are spam. Could one filter out spam while keeping our messages private, without sharing them with anyone? Yes, the solution is Federated Learning with Additive Sharing. 
 
 ## Why Federated Learning?
-Federated Learning protects data privacy. In FL, data is decentralized (not stored on one server) and does not leave its owners. A copy of a model is sent to each data owner. Model is trained there, without the model owner seeing data or uploading it to a central server.
+Federated Learning protects data privacy. In Federated Learning, data is decentralized (not stored on one server) and does not leave its owners. In other words, my invididual messages are not shared with anyone. To train a spam detector model, one sends it to the data owner and trains it there. The model owner does not see the data. There is no need to upload data to a central server.
 
-## Why Secure Multiparty Computation?
-Secure Multiparty Computation adds another layer of protection by keeping gradients private. Additive sharing generates secret shares of a value and distributes them among data owners. One data owner does not see the values of other owners. The parameters of the global model can still be updated.
+## Why Additive Sharing?
+Additive Sharing adds another layer of protection by keeping the gradients of the model private. Additive sharing generates secret shares of a value and distributes them among data owners. One data owner does not see the values of other owners. This minimizes the risk of model gradients leaking private information. In a nutshell, we encrypt model gradients to prevent leakage.
 
 ## Example
-Alice, Bob, and Jane receive lots of messages and would like to filter out spam. They want to keep their data private. We can help achieve these goals with FL and SMPC. Let us go step by step. 
+For the sake of simplicity, we take Alice, Bob, and Jane as our customers who receive lots of messages and wish to filter out spam. They want to keep their data private. Let's help them. 
 
 ### Import libraries
 ```python
@@ -108,7 +109,7 @@ This is the entire training for one worker. We zero out gradients to prevent the
         jane_loss = jane_loss.get().data
 ```
 
-### Multiparty computation: additive sharing of weights
+### Additive sharing of weights
 ```python
     bw = bob_model.get().weight.data
     # encode floats as integers and share securely. Additve sharing requires integers.
@@ -125,14 +126,13 @@ We get weights and bias from one worker (Bob) and share them in an encrypted way
     ab = alice_model.bias.data
     ab = ab.fix_prec().share(bob,alice,jane)
 
-    # same thing for Jane.
     jw = jane_model.get().weight.data
     jw = jw.fix_prec().share(bob,alice,jane)
     jb = jane_model.bias.data
     jb = jb.fix_prec().share(bob,alice,jane)
 ```
 
-### Update model parameters
+### Update the global model
 ```python
     with th.no_grad():
         print("avg weights", model.weight.set_(((bw + aw + jw) / 3).get().float_prec()))
@@ -147,8 +147,11 @@ We print the loss values.
 That's it.
 
 ## Conclusion
-With our simple model, we keep data and gradients private and can train and update our model parameters to make it smarter with each iteration. This is a win-win for data owners and model owner. Data owners can enjoy good performance of spam detectors while knowing that their data is protected. Model owners know that it will keep improving, without them touching private data.
+With our simple model, we keep data and gradients private and can train and update our model parameters to make it smarter with each iteration. This is a win-win for data owners and the model owner. Data is protected: it remains on data owners' devices and is not shared with anyone. Since gradients are encrypted, no private information can be extracted from them either. The model owner can improve his/her model with every iteration, without touching private data.
 
 ### Complete Example
 
 You can find complete example [here](federated_learning_smpc.py).
+
+### Links
+Federated Learning tutorials [here](https://github.com/OpenMined/PySyft/tree/dev/examples/tutorials).
