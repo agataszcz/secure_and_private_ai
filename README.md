@@ -45,7 +45,8 @@ We are letting workers know of each other. This step is not needed for virtual w
 data = th.tensor([[1.,1,1],[0,1,1],[1,0,0],[0,0,0],[1,1,0],[0,1,0]], requires_grad=True)
 target = th.tensor([[1.],[1],[0],[0],[1],[0]], requires_grad=True)
 ```
-To keep things simple, we use a toy dataset. 
+One way of detecting spam is checking for the presence of words strongly correlated with spam, like "free", "call," and "now." Our input
+dataset represents received text messages. We parse them and check if they contain any of the three spam-words. [1.,1,1] means that a message contains all three spam-words. [1,0,0] means that a message only has the first spam-word: "free." Intuitively, a message gets labeled "1" (spam) if it has two or more spam-words. If it contains one spam-word or none, the label is "0" (not-spam). In the following steps, we will train a model that will learn the same intuition from the simple dataset presented above.
 
 ### Send data to workers
 ```python
