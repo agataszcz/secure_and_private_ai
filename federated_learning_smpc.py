@@ -1,9 +1,9 @@
 #!/usr/bin/env python 
 """
-A simple example of federated learning with multi-party computation.
+A simple example of federated learning with additive sharing.
 Federated learning is used to protect data privacy: data remains with its owners. 
-Secure multiparty computation keeps the gradients private while allowing for
-updating parameters of the global model.
+Additive sharing keeps the gradients private while allowing one to update 
+the parameters of the global model.
 """
 
 import torch as th
@@ -40,7 +40,7 @@ jane_target = target[4:].send(jane)
 model = nn.Linear(3,1)
 
 # train, average gradients, and update parameters of the global model
-# multiparty computation
+# multiparty computation with additive sharing
 
 for round_iter in range(5):
     
